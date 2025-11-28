@@ -227,7 +227,7 @@ export default function SearchPage() {
                   <code>{apiBase}</code>
                 ) : (
                   <span className="italic">
-                    not configured — set NEXT_PUBLIC_API_BASE_URL in .env.local (e.g., http://localhost:3001)
+                    not configured — set NEXT_PUBLIC_API_BASE_URL in frontend .env.local (e.g., http://localhost:3001)
                   </span>
                 )}
               </div>

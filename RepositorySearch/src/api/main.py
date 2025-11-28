@@ -33,11 +33,15 @@ app = FastAPI(
 # Configure CORS based on ALLOW_ORIGINS
 def _parse_origins(origins: List[str]) -> List[str]:
     """
-    Normalize ALLOW_ORIGINS which may be:
+    Normalize ALLOW_ORIGINS from environment which may arrive as:
     - ["*"] to allow all origins
     - ["http://localhost:3000"] for a single allowed origin
-    - ["http://a.com,http://b.com"] (comma-separated in env) which should be split
+    - ["http://a.com,http://b.com"] (comma-separated in a single env value) which should be split
     Returns a non-empty list of origins; defaults to ["*"] if input empty.
+
+    Example:
+        ALLOW_ORIGINS=http://localhost:3000,https://your-preview.vercel.app
+        -> ["http://localhost:3000", "https://your-preview.vercel.app"]
     """
     # If a single '*' exists, allow all
     if any(o.strip() == "*" for o in origins):

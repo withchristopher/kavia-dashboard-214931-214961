@@ -24,12 +24,19 @@ A Next.js (TypeScript) dashboard for visualizing, searching, and exporting analy
 
    - Copy .env.local.example to .env.local
    - Set NEXT_PUBLIC_API_BASE_URL to your backend base URL (default for local dev: http://localhost:3001)
+   - Ensure the backend .env has ALLOW_ORIGINS including your frontend origin (e.g., http://localhost:3000)
 
 3. Run development server:
 
    npm run dev
 
    Open http://localhost:3000 in your browser.
+
+4. Verify end-to-end:
+
+   - Backend: uvicorn src.api.main:app --host 0.0.0.0 --port 3001 --reload
+   - Frontend: npm run dev (port 3000)
+   - Visit /search, perform a query (e.g., "nextjs"), see results, charts on detail page, and try PDF export.
 
 4. Build for production:
 

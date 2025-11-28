@@ -11,6 +11,9 @@ Backend service for GitHub repository search and analytics.
    Ensure ALLOW_ORIGINS includes your frontend origin, e.g.:
    ALLOW_ORIGINS=http://localhost:3000
 
+   Note: If your frontend runs on a different host/port (e.g., Vercel preview), add it too:
+   ALLOW_ORIGINS=http://localhost:3000,https://your-preview.vercel.app
+
 2. Install dependencies:
 
    pip install -r requirements.txt
@@ -18,6 +21,10 @@ Backend service for GitHub repository search and analytics.
 3. Run the server (port 3001 recommended):
 
    uvicorn src.api.main:app --host 0.0.0.0 --port 3001 --reload
+
+   Pairing for local dev:
+   - Frontend: http://localhost:3000
+   - Backend:  http://localhost:3001
 
 4. API docs:
 
