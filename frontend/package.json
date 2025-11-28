@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "next lint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "e2e:check": "node scripts/e2e_check.js"
   },
   "dependencies": {
     "next": "14.2.15",
