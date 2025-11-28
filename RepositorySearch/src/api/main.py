@@ -4,7 +4,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .routers import analytics_router, repos_router, search_router
+# Import modularized routers
+from .routers.search import search_router
+from .routers.repositories import repos_router
+from .routers.analytics import analytics_router
 
 
 # Initialize settings once (cached by get_settings)
