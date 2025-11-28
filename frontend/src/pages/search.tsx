@@ -6,6 +6,8 @@ import Filters, { FilterValues } from '@components/Filters';
 import RepoTable, { RepoItem } from '@components/RepoTable';
 import Pagination, { PageChange } from '@components/Pagination';
 import { getApiBaseUrl } from '@lib/config';
+import { searchRepositories } from '@lib/api';
+import type { SearchParams, PaginatedResponse, RepositorySummary } from '@lib/types';
 
 /**
  * PUBLIC_INTERFACE
@@ -77,7 +79,7 @@ export default function SearchPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, language, minStars, filters, sortBy, sortDir, page, pageSize]);
 
-  // Fetch function: integrates with backend (placeholder endpoint for now)
+  // Fetch function: uses API client when configured; falls back to mock generation otherwise
   const fetchResults = useCallback(async () => {
     if (!requestParams.q) {
       setItems([]);
@@ -88,44 +90,35 @@ export default function SearchPage() {
     setLoading(true);
     setErrorMsg(null);
     try {
-      // NOTE:
-      // Backend search endpoint is not yet specified; we mock a request to /api/search if available.
-      // If the backend is not ready, we provide a client-side fallback with fake data filtered locally.
-      const base = apiBase || '';
-      const url = new URL((base || '') + '/search');
-      url.searchParams.set('q', requestParams.q);
-      if (requestParams.language) url.searchParams.set('language', requestParams.language);
-      if (requestParams.minStars !== '' && typeof requestParams.minStars === 'number') {
-        url.searchParams.set('min_stars', String(requestParams.minStars));
-      }
-      url.searchParams.set('sort_by', requestParams.sortBy);
-      url.searchParams.set('sort_dir', requestParams.sortDir);
-      url.searchParams.set('page', String(requestParams.page));
-      url.searchParams.set('page_size', String(requestParams.pageSize));
-      if (requestParams.hasIssues) url.searchParams.set('has_issues', 'true');
-      if (requestParams.hasLicense) url.searchParams.set('has_license', 'true');
-      if (requestParams.archived) url.searchParams.set('archived', 'true');
+      let data: PaginatedResponse<RepositorySummary> | null = null;
+      const baseConfigured = !!apiBase;
 
-      let usedFallback = false;
-      let data: { items: RepoItem[]; total: number } | null = null;
-
-      if (base) {
+      if (baseConfigured) {
+        const params: SearchParams = {
+          q: requestParams.q,
+          language: requestParams.language || undefined,
+          minStars:
+            requestParams.minStars !== '' && typeof requestParams.minStars === 'number'
+              ? requestParams.minStars
+              : undefined,
+          hasIssues: requestParams.hasIssues || undefined,
+          hasLicense: requestParams.hasLicense || undefined,
+          archived: requestParams.archived || undefined,
+          sortBy: requestParams.sortBy,
+          sortDir: requestParams.sortDir,
+          page: requestParams.page,
+          pageSize: requestParams.pageSize
+        };
         try {
-          const r = await fetch(url.toString());
-          if (r.ok) {
-            data = (await r.json()) as { items: RepoItem[]; total: number };
-          } else {
-            usedFallback = true;
-          }
-        } catch {
-          usedFallback = true;
+          data = await searchRepositories(params);
+        } catch (apiErr: any) {
+          // If API request fails, fall back to mock
+          data = null;
         }
-      } else {
-        usedFallback = true;
       }
 
-      if (usedFallback) {
-        // Simple client-side fallback: generate mock items and apply basic filters/sort/paginate
+      if (!data) {
+        // Client-side fallback: generate mock items and apply basic filters/sort/paginate
         const mock: RepoItem[] = Array.from({ length: 120 }).map((_, i) => {
           const langList = ['TypeScript', 'JavaScript', 'Python', 'Go', 'Rust', 'Java'];
           const lang = langList[i % langList.length];
@@ -167,7 +160,7 @@ export default function SearchPage() {
             case 'forks':
               return (a.forks_count - b.forks_count) * dir;
             case 'updated':
-              return ((new Date(a.updated_at || 0).getTime() - new Date(b.updated_at || 0).getTime()) * dir);
+              return new Date(a.updated_at || 0).getTime() - new Date(b.updated_at || 0).getTime();
             case 'stars':
             default:
               return (a.stargazers_count - b.stargazers_count) * dir;
@@ -177,10 +170,15 @@ export default function SearchPage() {
         const totalFiltered = sorted.length;
         const start = (requestParams.page - 1) * requestParams.pageSize;
         const end = start + requestParams.pageSize;
-        data = { items: sorted.slice(start, end), total: totalFiltered };
+        data = {
+          items: sorted.slice(start, end),
+          total: totalFiltered,
+          page: requestParams.page,
+          page_size: requestParams.pageSize
+        };
       }
 
-      setItems(data?.items ?? []);
+      setItems((data?.items as unknown as RepoItem[]) ?? []);
       setTotal(data?.total ?? 0);
     } catch (err: any) {
       setErrorMsg(err?.message || 'Unexpected error during search.');

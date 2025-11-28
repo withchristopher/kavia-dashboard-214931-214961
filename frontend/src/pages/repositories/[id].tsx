@@ -6,6 +6,8 @@ import IssuesTrendChart from '@components/Charts/IssuesTrendChart';
 import LanguageDistribution from '@components/Charts/LanguageDistribution';
 import PDFExportButton from '@components/PDFExportButton';
 import { getApiBaseUrl } from '@lib/config';
+import { getRepository } from '@lib/api';
+import type { RepositoryDetail } from '@lib/types';
 
 type RepoDetails = {
   id: number | string;
@@ -44,7 +46,7 @@ export default function RepositoryDetailPage() {
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [repo, setRepo] = useState<RepoDetails | null>(null);
+  const [repo, setRepo] = useState<RepositoryDetail | null>(null);
 
   // Mock/fallback trends and language data if API isn't available
   const [issuesTrend, setIssuesTrend] = useState<Array<{ date: string; open: number }>>([]);
@@ -193,20 +195,19 @@ export default function RepositoryDetailPage() {
       setLoading(true);
       setErrorMsg(null);
       try {
-        // Backend endpoint example: /repositories/{id}
-        // Since API is not defined in this template, we use fallback mock data.
-        let fetched: RepoDetails | null = null;
+        let fetched: RepositoryDetail | null = null;
+
         if (apiBase) {
           try {
-            const url = `${apiBase}/repositories/${id}`;
-            const r = await fetch(url);
-            if (r.ok) {
-              fetched = (await r.json()) as RepoDetails;
-            }
+            // Treat the dynamic [id] route parameter as full repo name if it contains a slash,
+            // otherwise pass-through (backend may support numeric or slug IDs).
+            const fullName = String(id);
+            fetched = await getRepository(fullName);
           } catch {
-            // swallow to fallback
+            fetched = null;
           }
         }
+
         if (!fetched) {
           // Fallback mock
           const num = Number(id) || 1;
