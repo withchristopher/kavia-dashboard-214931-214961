@@ -297,13 +297,20 @@ export default function RepositoryDetailPage() {
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Repository Details</h2>
-        <PDFExportButton
-          title={repo?.full_name || 'Repository'}
-          description={repo?.description}
-          stats={stats}
-          getChartImages={getChartImages}
-          fileName={repo?.full_name || 'repository'}
-        />
+        <div className="flex items-center gap-3">
+          {!apiBase && (
+            <span className="text-xs text-slate-400">
+              Backend not configured — set NEXT_PUBLIC_API_BASE_URL in .env.local
+            </span>
+          )}
+          <PDFExportButton
+            title={repo?.full_name || 'Repository'}
+            description={repo?.description}
+            stats={stats}
+            getChartImages={getChartImages}
+            fileName={repo?.full_name || 'repository'}
+          />
+        </div>
       </div>
 
       {loading && (

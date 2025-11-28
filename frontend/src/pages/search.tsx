@@ -222,7 +222,14 @@ export default function SearchPage() {
                 disabled={loading || !hasSearched}
               />
               <div className="text-xs text-slate-400">
-                Backend: {apiBase ? <code>{apiBase}</code> : <span className="italic">not configured</span>}
+                Backend:{' '}
+                {apiBase ? (
+                  <code>{apiBase}</code>
+                ) : (
+                  <span className="italic">
+                    not configured — set NEXT_PUBLIC_API_BASE_URL in .env.local (e.g., http://localhost:3001)
+                  </span>
+                )}
               </div>
             </div>
           </div>

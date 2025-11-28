@@ -32,6 +32,13 @@ app = FastAPI(
 
 # Configure CORS based on ALLOW_ORIGINS
 def _parse_origins(origins: List[str]) -> List[str]:
+    """
+    Normalize ALLOW_ORIGINS which may be:
+    - ["*"] to allow all origins
+    - ["http://localhost:3000"] for a single allowed origin
+    - ["http://a.com,http://b.com"] (comma-separated in env) which should be split
+    Returns a non-empty list of origins; defaults to ["*"] if input empty.
+    """
     # If a single '*' exists, allow all
     if any(o.strip() == "*" for o in origins):
         return ["*"]

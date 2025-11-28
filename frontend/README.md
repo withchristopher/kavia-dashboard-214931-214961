@@ -23,7 +23,7 @@ A Next.js (TypeScript) dashboard for visualizing, searching, and exporting analy
 2. Configure environment:
 
    - Copy .env.local.example to .env.local
-   - Set NEXT_PUBLIC_API_BASE_URL to your backend base URL (e.g., http://localhost:3001)
+   - Set NEXT_PUBLIC_API_BASE_URL to your backend base URL (default for local dev: http://localhost:3001)
 
 3. Run development server:
 
