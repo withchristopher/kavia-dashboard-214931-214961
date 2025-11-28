@@ -43,6 +43,10 @@ A Next.js (TypeScript) dashboard for visualizing, searching, and exporting analy
 
 - src/pages/_app.tsx — App entry with global styles and layout.
 - src/pages/index.tsx — Landing page with link to /search and sample chart/PDF export.
+- src/pages/repositories/[id].tsx — Repository detail page with charts and PDF export.
+- src/components/Charts/* — Recharts-based chart components used across pages.
+- src/components/PDFExportButton.tsx — Button to export current view as a PDF using jsPDF.
+- src/lib/pdf.ts — Utility to assemble PDF with stats and embedded chart images.
 - src/styles/globals.css — Tailwind base styles and theme.
 - tailwind.config.ts — Tailwind configuration.
 - postcss.config.js — PostCSS configuration.
