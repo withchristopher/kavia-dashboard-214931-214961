@@ -33,3 +33,11 @@ body {
 .link {
   @apply text-primary-400 hover:text-primary-300 underline underline-offset-2;
 }
+
+/* Utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
