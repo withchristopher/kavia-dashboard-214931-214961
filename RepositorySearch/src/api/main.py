@@ -4,10 +4,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
+from .routers import analytics_router, repos_router, search_router
 
 
 # Initialize settings once (cached by get_settings)
 settings = get_settings()
+
+openapi_tags = [
+    {"name": "health", "description": "Service health and readiness."},
+    {"name": "search", "description": "Search public GitHub repositories."},
+    {"name": "repositories", "description": "Repository details and metadata."},
+    {"name": "analytics", "description": "Aggregate analytics for repository search slices."},
+]
 
 app = FastAPI(
     title="Repository Search API",
@@ -16,6 +24,7 @@ app = FastAPI(
         "Provides endpoints for search, repository details, and aggregate analytics."
     ),
     version="0.1.0",
+    openapi_tags=openapi_tags,
 )
 
 # Configure CORS based on ALLOW_ORIGINS
@@ -55,3 +64,9 @@ def health_check():
         JSON object with a simple 'message' indicating the service is up.
     """
     return {"message": "Healthy"}
+
+
+# Include feature routers
+app.include_router(search_router)
+app.include_router(repos_router)
+app.include_router(analytics_router)
